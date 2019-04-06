@@ -3,10 +3,29 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-/* @(#) $Id$ */
-
 #ifndef ZCONF_H
 #define ZCONF_H
+
+#ifdef _KERNEL
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/types.h>
+#endif
+
+/*
+ * We don't want to turn on zlib's debugging.
+ */
+#undef DEBUG
+
+#ifdef _KERNEL
+/*
+ * We define our own memory allocation and deallocation routines that use kmem.
+ */
+#define	MY_ZCALLOC
+#endif
+#define	HAVE_MEMCPY
+#define	ZLIB_CONST
+#define	Z_PREFIX
 
 /*
  * If you *really* need a unique prefix for all types and library functions,
@@ -31,7 +50,7 @@
 #  define adler32_combine64     z_adler32_combine64
 #  define adler32_z             z_adler32_z
 #  ifndef Z_SOLO
-#    define compress              z_compress
+#    define compress              zz_compress
 #    define compress2             z_compress2
 #    define compressBound         z_compressBound
 #  endif
@@ -126,7 +145,7 @@
 #  define inflate_fast          z_inflate_fast
 #  define inflate_table         z_inflate_table
 #  ifndef Z_SOLO
-#    define uncompress            z_uncompress
+#    define uncompress            zz_uncompress
 #    define uncompress2           z_uncompress2
 #  endif
 #  define zError                z_zError
@@ -244,7 +263,9 @@
 #  if defined(NO_SIZE_T)
      typedef unsigned NO_SIZE_T z_size_t;
 #  elif defined(STDC)
-#    include <stddef.h>
+#    ifndef _KERNEL
+#        include <stddef.h>
+#    endif
      typedef size_t z_size_t;
 #  else
      typedef unsigned long z_size_t;
@@ -415,7 +436,9 @@ typedef uLong FAR uLongf;
 #endif
 
 #if !defined(Z_U4) && !defined(Z_SOLO) && defined(STDC)
-#  include <limits.h>
+#  ifndef _KERNEL
+#      include <limits.h>
+#  endif
 #  if (UINT_MAX == 0xffffffffUL)
 #    define Z_U4 unsigned
 #  elif (ULONG_MAX == 0xffffffffUL)
@@ -446,8 +469,12 @@ typedef uLong FAR uLongf;
 #endif
 
 #if defined(STDC) || defined(Z_HAVE_STDARG_H)
+#  ifdef _KERNEL
+#    include <sys/varargs.h>
+#  else
 #  ifndef Z_SOLO
 #    include <stdarg.h>         /* for va_list */
+#  endif
 #  endif
 #endif
 
@@ -472,7 +499,9 @@ typedef uLong FAR uLongf;
 #endif
 #ifndef Z_SOLO
 #  if defined(Z_HAVE_UNISTD_H) || defined(_LARGEFILE64_SOURCE)
-#    include <unistd.h>         /* for SEEK_*, off_t, and _LFS64_LARGEFILE */
+#    ifndef _KERNEL
+#      include <unistd.h>         /* for SEEK_*, off_t, and _LFS64_LARGEFILE */
+#    endif
 #    ifdef VMS
 #      include <unixio.h>       /* for off_t */
 #    endif

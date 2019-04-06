@@ -7,8 +7,6 @@
  * Kadatch and Jenkins (2010). See doc/crc-doc.1.0.pdf in this distribution.
  */
 
-/* @(#) $Id$ */
-
 /*
   Note on the use of DYNAMIC_CRC_TABLE: there is no mutex or semaphore
   protection on the static variables used to control the first-use generation
@@ -583,7 +581,7 @@ local z_crc_t x2nmodp(n, k)
  * This function can be used by asm versions of crc32(), and to force the
  * generation of the CRC tables in a threaded application.
  */
-const z_crc_t FAR * ZEXPORT get_crc_table()
+const z_crc_t FAR * ZEXPORT get_crc_table(void)
 {
 #ifdef DYNAMIC_CRC_TABLE
     once(&made, make_crc_table);
@@ -736,10 +734,8 @@ local z_word_t crc_word_big(data)
 #endif
 
 /* ========================================================================= */
-unsigned long ZEXPORT crc32_z(crc, buf, len)
-    unsigned long crc;
-    const unsigned char FAR *buf;
-    z_size_t len;
+unsigned long ZEXPORT crc32_z(unsigned long crc, const unsigned char FAR *buf,
+    z_size_t len)
 {
     /* Return initial CRC, if requested. */
     if (buf == Z_NULL) return 0;
@@ -1060,10 +1056,8 @@ unsigned long ZEXPORT crc32_z(crc, buf, len)
 #endif
 
 /* ========================================================================= */
-unsigned long ZEXPORT crc32(crc, buf, len)
-    unsigned long crc;
-    const unsigned char FAR *buf;
-    uInt len;
+unsigned long ZEXPORT crc32(unsigned long crc, const unsigned char FAR *buf,
+    uInt len)
 {
     return crc32_z(crc, buf, len);
 }
@@ -1081,10 +1075,7 @@ uLong ZEXPORT crc32_combine64(crc1, crc2, len2)
 }
 
 /* ========================================================================= */
-uLong ZEXPORT crc32_combine(crc1, crc2, len2)
-    uLong crc1;
-    uLong crc2;
-    z_off_t len2;
+uLong ZEXPORT crc32_combine(uLong crc1, uLong crc2, z_off_t len2)
 {
     return crc32_combine64(crc1, crc2, len2);
 }

@@ -8,8 +8,6 @@
    subject to change. Applications should only use zlib.h.
  */
 
-/* @(#) $Id$ */
-
 #ifndef ZUTIL_H
 #define ZUTIL_H
 
@@ -21,7 +19,7 @@
 
 #include "zlib.h"
 
-#if defined(STDC) && !defined(Z_SOLO)
+#if defined(STDC) && !defined(Z_SOLO) && !defined(_KERNEL)
 #  if !(defined(_WIN32_WCE) && defined(_MSC_VER))
 #    include <stddef.h>
 #  endif
